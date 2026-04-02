@@ -64,9 +64,9 @@ cd ecommerce-backend
 Update `application.properties`:
 
 ```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/your_db
-spring.datasource.username=your_username
-spring.datasource.password=your_password
+spring.datasource.url=jdbc:postgresql://localhost:5432/ecomDB
+spring.datasource.username=postgres
+spring.datasource.password=1234
 spring.jpa.hibernate.ddl-auto=update
 ```
 
@@ -121,10 +121,4 @@ mvn spring-boot:run
 * GET `/api/orders`
 * GET `/api/orders/{id}`
 
-# ✅ Improvements Implemented
 
-* Fixed cart duplication issue
-* Implemented proper order creation flow
-* Added stock validation and management
-* Secured APIs with role-based authorization
-* Added global exception handling
