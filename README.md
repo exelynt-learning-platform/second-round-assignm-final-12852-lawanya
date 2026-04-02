@@ -2,7 +2,7 @@
 
 ## 📌 Project Description
 
-This project is a backend system for an e-commerce platform built using Spring Boot. It provides APIs for user authentication, product management, cart operations, order processing, and payment integration.
+This project is a backend system for an e-commerce platform built using Spring Boot. It provides REST APIs for user authentication, product management, cart operations, order processing, and payment integration.
 
 ---
 
@@ -24,17 +24,18 @@ This project is a backend system for an e-commerce platform built using Spring B
 * Add items to cart
 * Remove items from cart
 * Clear cart
-* Each user has a unique cart
+* Each user has a unique cart (no duplication)
 
 ### 📑 Order Management
 
 * Create order from cart
-* View user orders
-* Order contains product details and total price
+* View user-specific orders
+* Automatic total price calculation
+* Stock validation before order placement
 
 ### 💳 Payment Integration
 
-* Integrated with Stripe for payment processing
+* Integrated with Stripe PaymentIntent API
 * Secure API key configuration using environment variables
 
 ---
@@ -50,6 +51,20 @@ This project is a backend system for an e-commerce platform built using Spring B
 
 ---
 
+## 📁 Project Structure
+
+```
+src/main/java/in/ecom/
+ ├── controller/
+ ├── service/
+ ├── repository/
+ ├── model/
+ ├── security/
+ └── exception/
+```
+
+---
+
 ## ⚙️ Setup Instructions
 
 ### 1. Clone Repository
@@ -60,8 +75,6 @@ cd ecommerce-backend
 ```
 
 ### 2. Configure Database
-
-Update `application.properties`:
 
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/your_db
@@ -81,8 +94,10 @@ stripe.api.key=${STRIPE_SECRET_KEY}
 Set environment variable:
 
 ```bash
-setx STRIPE_SECRET_KEY "sk_test_your_secret_key"
+setx STRIPE_SECRET_KEY "<your_secret_key>"
 ```
+
+⚠️ Do NOT store real secret keys in the repository.
 
 ---
 
@@ -111,7 +126,7 @@ mvn spring-boot:run
 ### 🛒 Cart
 
 * GET `/api/cart`
-* POST `/api/cart/add`
+* POST `/api/cart/add?productId={id}&qty={qty}`
 * DELETE `/api/cart/remove/{id}`
 * DELETE `/api/cart/clear`
 
@@ -121,10 +136,89 @@ mvn spring-boot:run
 * GET `/api/orders`
 * GET `/api/orders/{id}`
 
-# ✅ Improvements Implemented
+---
+
+## 🧩 Implementation Details
+
+### 🔗 Entity Relationships
+
+* User → Orders (OneToMany)
+* Cart → CartItems (OneToMany)
+* Order → OrderItems (OneToMany)
+
+Example:
+
+```java
+@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+private List<Order> orders;
+```
+
+---
+
+### 🛒 Cart Logic
+
+* Implemented `getOrCreateCart()` to avoid duplicate carts
+* Items validated before adding (quantity > 0)
+
+---
+
+### 📑 Order Processing
+
+* Converts cart items into order items
+* Calculates total price dynamically
+* Validates stock before placing order
+* Reduces product stock after order creation
+* Clears cart after successful order
+
+---
+
+### 💳 Payment Flow
+
+1. User creates order
+2. Stripe PaymentIntent is generated
+3. Client secret returned
+4. Payment completed on frontend
+
+---
+
+## 🔐 Security Practices
+
+* JWT-based authentication
+* BCrypt password encryption
+* Role-based authorization
+* Environment variables for sensitive data
+
+---
+
+## 🔄 Sample Workflow
+
+1. User registers & logs in → receives JWT
+2. Adds products to cart
+3. Creates order
+4. Payment initiated via Stripe
+5. Order completed
+
+---
+
+## ⚠️ Important Notes
+
+* Stripe API key must be configured before running
+* Do not expose secret keys
+* Proper validation prevents invalid inputs
+
+---
+
+## ✅ Improvements Implemented
 
 * Fixed cart duplication issue
 * Implemented proper order creation flow
 * Added stock validation and management
+* Added transaction management (`@Transactional`)
 * Secured APIs with role-based authorization
 * Added global exception handling
+
+---
+
+## 📌 Author
+
+Lawanya Zanjad
